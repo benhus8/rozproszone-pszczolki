@@ -55,9 +55,7 @@ void sendPacket(packet_t *pkt, int destination, int tag)
 {
     int freepkt=0;
     if (pkt==0) { pkt = malloc(sizeof(packet_t)); freepkt=1;}
-    pthread_mutex_lock(&zegar_mutex);
     pkt->ts += 1;
-    pthread_mutex_unlock(&zegar_mutex);
     pthread_mutex_lock(&zegar_mutex);
     zegar = zegar + 1;
     pthread_mutex_unlock(&zegar_mutex);
