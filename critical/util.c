@@ -55,7 +55,12 @@ void sendPacket(packet_t *pkt, int destination, int tag)
 {
     int freepkt=0;
     if (pkt==0) { pkt = malloc(sizeof(packet_t)); freepkt=1;}
-    pkt->src = rank;
+    pthread_mutex_lock(&zegar_mutex);
+    pkt->ts += 1;
+    pthread_mutex_unlock(&zegar_mutex);
+    pthread_mutex_lock(&zegar_mutex);
+    zegar = zegar + 1;
+    pthread_mutex_unlock(&zegar_mutex);
     MPI_Send( pkt, 1, MPI_PAKIET_T, destination, tag, MPI_COMM_WORLD);
     debug("Wysyłam %s do %d\n", tag2string( tag), destination);
     if (freepkt) free(pkt);

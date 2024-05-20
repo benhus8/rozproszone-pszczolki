@@ -1,0 +1,28 @@
+---
+triple:          'arm64-apple-darwin'
+binary-path:     main
+relocations:
+  - { offsetInCU: 0x26, offset: 0x26, size: 0x8, addend: 0x0, symName: _finalizuj, symObjAddr: 0x0, symBinAddr: 0x100002F7C, symSize: 0x108 }
+  - { offsetInCU: 0x3F, offset: 0x3F, size: 0x8, addend: 0x0, symName: _ackCount, symObjAddr: 0x1340, symBinAddr: 0x1000080D0, symSize: 0x0 }
+  - { offsetInCU: 0x5B, offset: 0x5B, size: 0x8, addend: 0x0, symName: _zegar, symObjAddr: 0x1344, symBinAddr: 0x1000080D4, symSize: 0x0 }
+  - { offsetInCU: 0x70, offset: 0x70, size: 0x8, addend: 0x0, symName: _zegar_mutex, symObjAddr: 0x2A8, symBinAddr: 0x100008000, symSize: 0x0 }
+  - { offsetInCU: 0xDD, offset: 0xDD, size: 0x8, addend: 0x0, symName: _rank, symBinAddr: 0x1000080D8, symSize: 0x0 }
+  - { offsetInCU: 0xF2, offset: 0xF2, size: 0x8, addend: 0x0, symName: _size, symBinAddr: 0x1000080DC, symSize: 0x0 }
+  - { offsetInCU: 0x107, offset: 0x107, size: 0x8, addend: 0x0, symName: _threadKom, symBinAddr: 0x1000080E0, symSize: 0x0 }
+  - { offsetInCU: 0x1AC, offset: 0x1AC, size: 0x8, addend: 0x0, symName: _finalizuj, symObjAddr: 0x0, symBinAddr: 0x100002F7C, symSize: 0x108 }
+  - { offsetInCU: 0x1C1, offset: 0x1C1, size: 0x8, addend: 0x0, symName: _check_thread_support, symObjAddr: 0x108, symBinAddr: 0x100003084, symSize: 0xDC }
+  - { offsetInCU: 0x1E5, offset: 0x1E5, size: 0x8, addend: 0x0, symName: _main, symObjAddr: 0x1F4, symBinAddr: 0x100003170, symSize: 0xB4 }
+  - { offsetInCU: 0x26, offset: 0x2D0, size: 0x8, addend: 0x0, symName: _tag2string, symObjAddr: 0x0, symBinAddr: 0x100003224, symSize: 0x98 }
+  - { offsetInCU: 0x3F, offset: 0x2E9, size: 0x8, addend: 0x0, symName: _stan, symObjAddr: 0x1200, symBinAddr: 0x1000080E8, symSize: 0x0 }
+  - { offsetInCU: 0x8D, offset: 0x337, size: 0x8, addend: 0x0, symName: _stateMut, symObjAddr: 0x2B0, symBinAddr: 0x100008040, symSize: 0x0 }
+  - { offsetInCU: 0xFA, offset: 0x3A4, size: 0x8, addend: 0x0, symName: _tagNames, symObjAddr: 0x2F0, symBinAddr: 0x100008080, symSize: 0x0 }
+  - { offsetInCU: 0x14D, offset: 0x3F7, size: 0x8, addend: 0x0, symName: _MPI_PAKIET_T, symBinAddr: 0x1000080F0, symSize: 0x0 }
+  - { offsetInCU: 0x16C, offset: 0x416, size: 0x8, addend: 0x0, symName: _tag2string, symObjAddr: 0x0, symBinAddr: 0x100003224, symSize: 0x98 }
+  - { offsetInCU: 0x1B0, offset: 0x45A, size: 0x8, addend: 0x0, symName: _inicjuj_typ_pakietu, symObjAddr: 0x98, symBinAddr: 0x1000032BC, symSize: 0xB8 }
+  - { offsetInCU: 0x1F0, offset: 0x49A, size: 0x8, addend: 0x0, symName: _sendPacket, symObjAddr: 0x150, symBinAddr: 0x100003374, symSize: 0xF4 }
+  - { offsetInCU: 0x23E, offset: 0x4E8, size: 0x8, addend: 0x0, symName: _changeState, symObjAddr: 0x244, symBinAddr: 0x100003468, symSize: 0x6C }
+  - { offsetInCU: 0x26, offset: 0x5AB, size: 0x8, addend: 0x0, symName: _mainLoop, symObjAddr: 0x0, symBinAddr: 0x1000034D4, symSize: 0x540 }
+  - { offsetInCU: 0x48, offset: 0x5CD, size: 0x8, addend: 0x0, symName: _mainLoop, symObjAddr: 0x0, symBinAddr: 0x1000034D4, symSize: 0x540 }
+  - { offsetInCU: 0x26, offset: 0x6D5, size: 0x8, addend: 0x0, symName: _startKomWatek, symObjAddr: 0x0, symBinAddr: 0x100003A14, symSize: 0x148 }
+  - { offsetInCU: 0x3B, offset: 0x6EA, size: 0x8, addend: 0x0, symName: _startKomWatek, symObjAddr: 0x0, symBinAddr: 0x100003A14, symSize: 0x148 }
+...

@@ -13,6 +13,9 @@
  */
 int rank, size;
 int ackCount = 0;
+
+int zegar = 0;
+pthread_mutex_t zegar_mutex = PTHREAD_MUTEX_INITIALIZER;
 /* 
  * Każdy proces ma dwa wątki - główny i komunikacyjny
  * w plikach, odpowiednio, watek_glowny.c oraz (siurpryza) watek_komunikacyjny.c

@@ -9,6 +9,11 @@ void *startKomWatek(void *ptr)
     packet_t pakiet;
     /* Obrazuje pętlę odbierającą pakiety o różnych typach */
     while ( stan!=InFinish ) {
+    int received_ts = pakiet.ts;
+
+    pthread_mutex_lock(&zegar_mutex);
+    zegar = (received_ts > zegar) ? (received_ts + 1) : (zegar + 1);
+    pthread_mutex_unlock(&zegar_mutex);
 	debug("czekam na recv");
         MPI_Recv( &pakiet, 1, MPI_PAKIET_T, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
 

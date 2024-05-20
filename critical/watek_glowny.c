@@ -32,7 +32,7 @@ void mainLoop()
 		debug("Skończyłem myśleć");
 		break;
 	    case InWant:
-		println("Czekam na wejście do sekcji krytycznej")
+		println("Czekam na wejście do sekcji krytycznej");
 		// tutaj zapewne jakiś semafor albo zmienna warunkowa
 		// bo aktywne czekanie jest BUE
 		if ( ackCount == size - 1) 
@@ -40,11 +40,11 @@ void mainLoop()
 		break;
 	    case InSection:
 		// tutaj zapewne jakiś muteks albo zmienna warunkowa
-		println("Jestem w sekcji krytycznej")
+		println("Jestem w sekcji krytycznej");
 		    sleep(5);
 		//if ( perc < 25 ) {
 		    debug("Perc: %d", perc);
-		    println("Wychodzę z sekcji krytycznej")
+		    println("Wychodzę z sekcji krytycznej");
 		    debug("Zmieniam stan na wysyłanie");
 		    packet_t *pkt = malloc(sizeof(packet_t));
 		    pkt->data = perc;
