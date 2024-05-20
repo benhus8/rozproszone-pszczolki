@@ -1,0 +1,57 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	Development	//
+ACK	util.h	17;"	d
+APP_PKT	util.h	20;"	d
+FALSE	main.h	14;"	d
+FINISH	util.h	21;"	d
+FLAGS	Makefile	/^FLAGS=-g$/;"	m
+HEADERS	Makefile	/^HEADERS=$(SOURCES:.c=.h)$/;"	m
+InFinish	util.h	/^typedef enum {InRun, InMonitor, InWant, InSection, InFinish} state_t;$/;"	e	enum:__anon2
+InMonitor	util.h	/^typedef enum {InRun, InMonitor, InWant, InSection, InFinish} state_t;$/;"	e	enum:__anon2
+InRun	util.h	/^typedef enum {InRun, InMonitor, InWant, InSection, InFinish} state_t;$/;"	e	enum:__anon2
+InSection	util.h	/^typedef enum {InRun, InMonitor, InWant, InSection, InFinish} state_t;$/;"	e	enum:__anon2
+InWant	util.h	/^typedef enum {InRun, InMonitor, InWant, InSection, InFinish} state_t;$/;"	e	enum:__anon2
+MAINH	main.h	2;"	d
+MPI_PAKIET_T	util.c	/^MPI_Datatype MPI_PAKIET_T;$/;"	v
+NITEMS	util.h	13;"	d
+RELEASE	util.h	19;"	d
+REQUEST	util.h	18;"	d
+ROOT	main.h	18;"	d
+SEC_IN_STATE	main.h	15;"	d
+SOURCES	Makefile	/^SOURCES=$(wildcard *.c)$/;"	m
+STATE_CHANGE_PROB	main.h	16;"	d
+TRUE	main.h	13;"	d
+UTILH	util.h	2;"	d
+WATEK_GLOWNY_H	watek_glowny.h	2;"	d
+WATEK_KOMUNIKACYJNY_H	watek_komunikacyjny.h	2;"	d
+ackCount	main.c	/^int ackCount = 0;$/;"	v
+changeState	util.c	/^void changeState( state_t newState )$/;"	f
+check_thread_support	main.c	/^void check_thread_support(int provided)$/;"	f
+data	util.h	/^    int data;     \/* przykładowe pole z danymi; można zmienić nazwę na bardziej pasującą *\/$/;"	m	struct:__anon1
+debug	main.h	49;"	d
+debug	main.h	51;"	d
+finalizuj	main.c	/^void finalizuj()$/;"	f
+inicjuj_typ_pakietu	util.c	/^void inicjuj_typ_pakietu()$/;"	f
+main	main.c	/^int main(int argc, char **argv)$/;"	f
+mainLoop	watek_glowny.c	/^void mainLoop()$/;"	f
+name	util.c	/^    const char *name;$/;"	m	struct:tagNames_t	file:
+packet_t	util.h	/^} packet_t;$/;"	t	typeref:struct:__anon1
+println	main.h	55;"	d
+rank	main.c	/^int rank, size;$/;"	v
+sendPacket	util.c	/^void sendPacket(packet_t *pkt, int destination, int tag)$/;"	f
+size	main.c	/^int rank, size;$/;"	v
+src	util.h	/^    int src;  $/;"	m	struct:__anon1
+stan	util.c	/^state_t stan=InRun;$/;"	v
+startKomWatek	watek_komunikacyjny.c	/^void *startKomWatek(void *ptr)$/;"	f
+stateMut	util.c	/^pthread_mutex_t stateMut = PTHREAD_MUTEX_INITIALIZER;$/;"	v
+state_t	util.h	/^typedef enum {InRun, InMonitor, InWant, InSection, InFinish} state_t;$/;"	t	typeref:enum:__anon2
+tag	util.c	/^    int tag;$/;"	m	struct:tagNames_t	file:
+tag2string	util.c	/^const char *const tag2string( int tag )$/;"	f
+tagNames	util.c	/^} tagNames[] = { { "pakiet aplikacyjny", APP_PKT }, { "finish", FINISH}, $/;"	v	typeref:struct:tagNames_t
+tagNames_t	util.c	/^struct tagNames_t{$/;"	s	file:
+threadKom	main.c	/^pthread_t threadKom;$/;"	v
+ts	util.h	/^    int ts;       \/* timestamp (zegar lamporta *\/$/;"	m	struct:__anon1
