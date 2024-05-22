@@ -1,7 +1,8 @@
-/* w main.h także makra println oraz debug -  z kolorkami! */
 #include "main.h"
-#include "watek_glowny.h"
-#include "watek_komunikacyjny.h"
+#include "main_thread.h"
+#include "com_thread.h"
+#include "queue.h"
+#include "util.h"
 
 /*
  * W main.h extern int rank (zapowiedź) w main.c int rank (definicja)
@@ -11,30 +12,24 @@
  * ale zob util.c oraz util.h - zmienną state_t state i funkcję changeState
  *
  */
-int rank, size;
-int ackCount = 0;
-/* 
- * Każdy proces ma dwa wątki - główny i komunikacyjny
- * w plikach, odpowiednio, watek_glowny.c oraz (siurpryza) watek_komunikacyjny.c
- *
- *
- */
+struct Queue* reed_queue = NULL;
+struct Queue* flower_queue = NULL;
+int reed_id = 0;
+pthread_t com_thread;
 
-pthread_t threadKom;
-
-void finalizuj()
+void finalize()
 {
-    pthread_mutex_destroy( &stateMut);
+    pthread_mutex_destroy( &state_mut);
     /* Czekamy, aż wątek potomny się zakończy */
     println("czekam na wątek \"komunikacyjny\"\n" );
-    pthread_join(threadKom,NULL);
-    MPI_Type_free(&MPI_PAKIET_T);
+    pthread_join(com_thread,NULL);
+    MPI_Type_free(&MPI_PACKET_T);
     MPI_Finalize();
 }
 
 void check_thread_support(int provided)
 {
-    printf("THREAD SUPPORT: chcemy %d. Co otrzymamy?\n", provided);
+    // printf("THREAD SUPPORT: chcemy %d. Co otrzymamy?\n", provided);
     switch (provided) {
         case MPI_THREAD_SINGLE: 
             printf("Brak wsparcia dla wątków, kończę\n");
@@ -50,39 +45,30 @@ void check_thread_support(int provided)
             /* Potrzebne zamki wokół wywołań biblioteki MPI */
             printf("tylko jeden watek naraz może wykonać wołania do biblioteki MPI\n");
 	    break;
-        case MPI_THREAD_MULTIPLE: printf("Pełne wsparcie dla wątków\n"); /* tego chcemy. Wszystkie inne powodują problemy */
+        case MPI_THREAD_MULTIPLE: // printf("Pełne wsparcie dla wątków\n"); /* tego chcemy. Wszystkie inne powodują problemy */
 	    break;
         default: printf("Nikt nic nie wie\n");
     }
 }
 
-
 int main(int argc, char **argv)
 {
-    MPI_Status status;
+    reed_queue = createQueue();
+    flower_queue = createQueue();
     int provided;
     MPI_Init_thread(&argc, &argv, MPI_THREAD_MULTIPLE, &provided);
     check_thread_support(provided);
     srand(rank);
     /* zob. util.c oraz util.h */
-    inicjuj_typ_pakietu(); // tworzy typ pakietu
+    init_packet_type(); // tworzy typ pakietu
     MPI_Comm_size(MPI_COMM_WORLD, &size);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    /* startKomWatek w watek_komunikacyjny.c 
-     * w vi najedź kursorem na nazwę pliku i wciśnij klawisze gf
-     * powrót po wciśnięciu ctrl+6
-     * */
-    pthread_create( &threadKom, NULL, startKomWatek , 0);
-
-    /* mainLoop w watek_glowny.c 
-     * w vi najedź kursorem na nazwę pliku i wciśnij klawisze gf
-     * powrót po wciśnięciu ctrl+6
-     * */
-    mainLoop(); // możesz także wcisnąć ctrl-] na nazwie funkcji
-		// działa, bo używamy ctags (zob Makefile)
-		// jak nie działa, wpisz set tags=./tags :)
     
-    finalizuj();
+    // komunikacja (odbieranie i wysyłanie REQ, ACK...)
+    pthread_create( &com_thread, NULL, start_com_thread , 0);
+    // główny wątek (zmiana stanu w którym jest krasnolud na danym etapie)
+    main_loop();
+
+    finalize();
     return 0;
 }
-
