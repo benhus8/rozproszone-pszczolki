@@ -20,12 +20,13 @@ pthread_mutex_t ack_reed_count_mut = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t ack_flower_count_mut = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t queue_reed_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t queue_flower_mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t reed_egg_counter_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 struct tagNames_t{
     const char *name;
     int tag;
 } tagNames[] = { {"żądanie wejścia do sekcji trzciny", ENTER_REED}, {"żądanie wejścia do sekcji kwiatka", ENTER_FLOWER}, {"żądanie wejścia do sekcji gniazda", COOCON},
-                {"żądanie zakończenia sekcji kwiatka", END_FLW}, {"żądanie zakończenia sekcji gniazda", DEAD}, {"potwierdzenie wejścia do sekcji trzciny", REED_ACK},
+                {"żądanie zakończenia sekcji kwiatka", END_FLW}, {"żądanie zakończenia sekcji gniazda", END_OF_LIFE}, {"potwierdzenie wejścia do sekcji trzciny", REED_ACK},
                 {"prośba o sekcję krytyczną trzciny", REED_REQUEST}, {"prośba o kwiatek", FLOWER_REQUEST}, {"potwierdzenie odn. kwiatka", FLOWER_ACK}
                 };
 
@@ -74,7 +75,7 @@ void sendPacket(packet_t *pkt, int destination, int tag)
 void changeState( state_t new_state )
 {
     pthread_mutex_lock( &state_mut );
-    if (state==DEAD) { 
+    if (state==AFTER_FUNERAL) { 
 	    pthread_mutex_unlock( &state_mut );
         return;
     }

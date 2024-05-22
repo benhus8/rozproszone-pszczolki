@@ -11,7 +11,7 @@ FLAGS=-DDEBUG -g
 all: main tags
 
 main: $(SOURCES) $(HEADERS) Makefile
-	mpicc -Wall $(SOURCES) $(FLAGS) -DNUM_BEES=${NUM_BEES} -DNUM_REED=$(NUM_REEDS) -DNUM_FLOWERS=$(NUM_FLOWERS) -o main
+	mpicc -Wall $(SOURCES) $(FLAGS) -DNUM_BEES=${NUM_BEES} -DNUM_REEDS=$(NUM_REEDS) -DNUM_FLOWERS=$(NUM_FLOWERS) -o main
 
 clear: clean
 

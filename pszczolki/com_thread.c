@@ -7,20 +7,30 @@ void *start_com_thread(void *ptr)
     MPI_Status status;
     packet_t packet;
 
-    while (state != DEAD ) {
+    while (state != AFTER_FUNERAL ) {
         MPI_Recv( &packet, 1, MPI_PACKET_T, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
         pthread_mutex_lock( &clock_mut );
         lamport_clock = (lamport_clock > packet.ts ? lamport_clock : packet.ts) + 1;
         pthread_mutex_unlock( &clock_mut );
 
-        int src_priority = packet.priority;
-        int priority = rec_priority < src_priority ? 1 : 0; // mamy priorytet, jeśli mamy mniejszą wartość
+
+        // int src_priority = packet.priority;
+        int priority = 0;
+        if(packet.ts > lamport_clock){
+            priority = 1;
+        }
+        else if(packet.ts == lamport_clock){
+            priority = status.MPI_SOURCE > rank ? 1 : 0;
+        }
+        else{
+            priority = 0;
+        }
+        println("pacet.ts: %d, lamport_clock: %d, priority: %d", packet.ts, lamport_clock, priority);
 
         switch ( status.MPI_TAG ) {
-            case REED_REQUEST: 
-                debug("Priorytety: rec %ld, src %d", rec_priority, src_priority);
-                debug("O trzcine ubiega się %d", packet.src);
-                if (packet.reed_id != reed_id){
+            case REED_REQUEST:
+                debug("O trzcine nr %d ubiega się %d", packet.reed_id, packet.src);
+                if (packet.reed_id != reed_id) {
                     packet_t *pkt = malloc(sizeof(packet_t));
                     pkt->reed_id = packet.reed_id;
                     sendPacket( pkt, status.MPI_SOURCE, REED_ACK );
@@ -39,7 +49,8 @@ void *start_com_thread(void *ptr)
                 }
                 break;
             case REED_ACK:
-                if (packet.reed_id == reed_id){
+            println("COM THREAD: sended_reed_req_ts: %d, packet.ts %d", sended_reed_req_ts, packet.ts);
+                if (packet.reed_id == reed_id && packet.ts >= sended_reed_req_ts && (state == WAIT_REED || state == WaitForACKReed)){
                     pthread_mutex_lock(&ack_reed_count_mut);
                     ack_reed_count++;
                     pthread_mutex_unlock(&ack_reed_count_mut);
@@ -78,6 +89,13 @@ void *start_com_thread(void *ptr)
                 }
                 break;
             case COOCON:
+                println("Otrzymałem COCOON od pszczółki nr %d składa jajo na trzcinie nr %d", status.MPI_SOURCE, packet.reed_id);
+                pthread_mutex_lock(&reed_egg_counter_mutex);
+                reed_egg_counter[packet.reed_id]++; // zwiększam licznik jajek na danej trzcinie
+                pthread_mutex_unlock(&reed_egg_counter_mutex);
+                break;
+            case END_OF_LIFE:
+                println("Otrzymałem DEAD od pszczółki nr %d", status.MPI_SOURCE);
                 break;
             default:
                 break;

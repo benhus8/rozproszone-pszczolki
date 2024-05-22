@@ -7,7 +7,7 @@
 #include <stddef.h>
 
 #ifdef DEBUG
-#define debug(FORMAT,...) printf("%c[%d;%dm [%d]: " FORMAT "%c[%d;%dm\n",  27, (1+(rank/7))%2, 31+(6+rank)%7, lamport_clock, ##__VA_ARGS__, 27,0,37);
+#define debug(FORMAT,...) printf("%c[%d;%dm [%d] [%d]: " FORMAT "%c[%d;%dm\n",  27, (1+(rank/7))%2, 31+(6+rank)%7, rank, lamport_clock, ##__VA_ARGS__, 27,0,37);
 #else
 #define debug(...) ;
 #endif
@@ -16,15 +16,15 @@
 #define println(FORMAT,...) printf("%c[%d;%dm [%d] [%d]: " FORMAT "%c[%d;%dm\n",  27, (1+(rank/7))%2, 31+(6+rank)%7,rank, lamport_clock, ##__VA_ARGS__, 27,0,37);
 
 #ifndef NUM_REEDS
-    #define NUM_REEDS 1
+    #define NUM_REEDS 2
 #endif
 
 #ifndef NUM_FLOWERS
-    #define NUM_FLOWERS 1
+    #define NUM_FLOWERS 2
 #endif
 
 #ifndef NUM_BEES
-    #define NUM_BEES 1
+    #define NUM_BEES 3
 #endif
 
 #define TRUE 1
@@ -47,6 +47,7 @@
 #define ENTER_FLOWER 6
 #define COOCON 7
 #define END_FLW 8
+#define END_OF_LIFE 9
 
 typedef struct {
     int ts;      
@@ -64,7 +65,8 @@ typedef enum {
     WaitForACKReed,
     WaitForACKFlower,
     EGG,
-    DEAD
+    DEAD,
+    AFTER_FUNERAL
 } state_t;
 
 extern int rank;
@@ -84,6 +86,8 @@ extern pthread_mutex_t ack_reed_count_mut;
 extern pthread_mutex_t ack_flower_count_mut;
 extern pthread_mutex_t queue_reed_mutex;
 extern pthread_mutex_t queue_flower_mutex;
+
+extern pthread_mutex_t reed_egg_counter_mutex;
 
 void init_packet_type();
 void sendPacket(packet_t *pkt, int destination, int tag);
