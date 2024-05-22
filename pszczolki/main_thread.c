@@ -32,8 +32,8 @@ void main_loop()
 				// wait
 				break;
 			case ON_REED:
-				debug("Jestem na trzcinie")
-				println("Jestem na trzcinie")
+				debug("Jestem na trzcinie %d", reed_id)
+				println("Jestem na trzcinie %d", reed_id)
 				rec_priority = lamport_clock*1000 + rank;
 				pkt->priority = rec_priority;
 
@@ -49,11 +49,11 @@ void main_loop()
 				// wait
 				break;
 			case ON_FLOWER:
-				println("Jestem na kwiatku %d !!!!!!!!", reed_id);
+				println("Jestem na kwiatku, moja trzcina - %d ", reed_id);
 
 				sleep(10); 
 
-				println("Skończyłem byc na kwiatku %d !!!!!!!!", reed_id);
+				println("Skończyłem byc na kwiatku, wracam na trzcine - %d !!!!!!!!", reed_id);
 
 				debug("Wychodzę z kwiatka")
 				debug("Zmieniam stan na wysyłanie");
@@ -69,7 +69,7 @@ void main_loop()
 				changeState( EGG);
 				break;
 			case EGG:
-				println("Składam jajko")
+				println("Składam jajko numer: %d", egg_count+1);
 				sleep(10);
 				egg_count++;
 				for (int i = 0; i <= size-1; i++){
