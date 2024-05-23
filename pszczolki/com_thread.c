@@ -41,11 +41,10 @@ void *start_com_thread(void *ptr)
                     pkt->reed_id = reed_id;
                     sendPacket( pkt, status.MPI_SOURCE, REED_ACK );
                     changeAckReedCount(0);
-                    // reed_queue = createQueue();
                     changeState(REST);
                 }
                 else if (state == WAIT_REED || state == WaitForACKReed) {
-                    // enqueue(reed_queue, packet.src);
+                    enqueue(reed_queue, status.MPI_SOURCE);
                 }
                 break;
             case REED_ACK:
@@ -55,7 +54,7 @@ void *start_com_thread(void *ptr)
                     ack_reed_count++;
                     pthread_mutex_unlock(&ack_reed_count_mut);
 
-                    debug("Dostałem ACK od %d, mam już %d, potrzebuje %d", status.MPI_SOURCE, ack_reed_count, bees-1); /* czy potrzeba tutaj muteksa? Będzie wyścig, czy nie będzie? Zastanówcie się. */
+                    debug("Dostałem ACK od %d, mam już %d, potrzebuje %d", status.MPI_SOURCE, ack_reed_count, bees-1);
                 }
                 if(state==WAIT_REED || state==WaitForACKReed){
                     if ( ack_reed_count >= bees - 1){ 
@@ -64,9 +63,8 @@ void *start_com_thread(void *ptr)
                 }
                 break;
             case FLOWER_REQUEST:
-                debug("Dostałem flower request");
                 debug("Dostałem FLOWER_REQUEST, from: %d, moj state: %s, priority: %d", status.MPI_SOURCE, state_names[state], priority);
-                if (state!=WAIT_FLOWER){
+                if (state!=WAIT_FLOWER && flower_occupied < NUM_FLOWERS){
                     sendPacket(0, status.MPI_SOURCE, FLOWER_ACK);
                 }
                 else if (state == WAIT_FLOWER && !priority){
@@ -75,36 +73,35 @@ void *start_com_thread(void *ptr)
                     changeState(ON_REED);
                 } else if (state == WAIT_FLOWER && priority){
                     pthread_mutex_lock(&queue_flower_mutex);
-                    // enqueue(flower_queue, packet.src); // status.MPI_SOURCE
+                    enqueue(flower_queue, status.MPI_SOURCE); // status.MPI_SOURCE
                     pthread_mutex_unlock(&queue_flower_mutex);
                 }
                 break;
             case FLOWER_ACK:
-                debug("sended_flower_req_ts: %d, packet.ts %d, state: %s", sended_flower_req_ts, packet.ts, state_names[state]);
+                // debug("sended_flower_req_ts: %d, packet.ts %d, state: %s", sended_flower_req_ts, packet.ts, state_names[state]);
                 if (packet.ts >= sended_flower_req_ts && (state == WAIT_FLOWER)) {
                     pthread_mutex_lock(&ack_flower_count_mut);
                     ack_flower_count++;
                     pthread_mutex_unlock(&ack_flower_count_mut);
-                    debug("Akceptuje Flower_ACK od %d, mam już %d, potrzebuje %d", status.MPI_SOURCE, ack_flower_count, bees - (NUM_FLOWERS + flower_occupied));
+                    debug("Dostałem Flower_ACK od %d, mam już %d, potrzebuje %d", status.MPI_SOURCE, ack_flower_count, bees - (NUM_FLOWERS + flower_occupied));
                 }
-                debug("Dostałem FLOWER_ACK, bees: %d, flower_occupied: %d, NUM_FLOWERS: %d, ack count: %d", bees, flower_occupied, NUM_FLOWERS, ack_flower_count);
+                println("Dostałem FLOWER_ACK, bees: %d, flower_occupied: %d, NUM_FLOWERS: %d, ack count: %d", bees, flower_occupied, NUM_FLOWERS, ack_flower_count);
                 if (ack_flower_count >= bees - (NUM_FLOWERS - flower_occupied) && (state == WAIT_FLOWER) && flower_occupied < NUM_FLOWERS){
-                    for (int i = 0; i < size; i++){
-                        if (i != rank){
-                            sendPacket(0, i, ENTER_FLOWER);
-                            }
-                    }
                     changeState(ON_FLOWER);
                 }
                 debug("state: %s", state_names[state])
                 break;
             case ENTER_FLOWER:
-                debug("Otrzymałem ENTER_FLOWER od pszczółki nr %d, flowers: %d", status.MPI_SOURCE, flower_occupied);
-                flower_occupied++;
+                addOccupiedFlowerCount();
+                // flower_occupied++;
+                println("Otrzymałem ENTER_FLOWER od pszczółki nr %d, flowers: %d", status.MPI_SOURCE, flower_occupied);
                 break;
             case END_FLW:
-                debug("Otrzymałem END_FLOWER od pszczółki nr %d, flowers: %d", status.MPI_SOURCE, flower_occupied);
-                flower_occupied--;
+                subtractOccupiedFlowerCount();
+                println("Otrzymałem END_FLOWER od pszczółki nr %d, flowers: %d", status.MPI_SOURCE, flower_occupied);
+                if(ack_flower_count >= bees - (NUM_FLOWERS - flower_occupied) && (state == WAIT_FLOWER) && flower_occupied < NUM_FLOWERS) {
+                    changeState(ON_FLOWER);
+                }
                 break;
             case COOCON:
                 debug("Otrzymałem COCOON od pszczółki nr %d składa jajo na trzcinie nr %d", status.MPI_SOURCE, packet.reed_id);
@@ -115,9 +112,6 @@ void *start_com_thread(void *ptr)
             case END_OF_LIFE:
                 bees--;
                 debug("Otrzymałem DEAD od pszczółki nr %d, ilosc pszczolek: %d, moj stan: %s", status.MPI_SOURCE, bees,state_names[state]);
-                if(state==WAIT_REED || state==WaitForACKReed){
-                    changeState(REST);
-                }
                 break;
             default:
                 break;
