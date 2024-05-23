@@ -22,6 +22,7 @@ pthread_mutex_t ack_flower_count_mut = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t queue_reed_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t queue_flower_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t reed_egg_counter_mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t occupied_flower_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 struct tagNames_t{
     const char *name;
@@ -107,4 +108,16 @@ void changeAckFlowerCount(int value){
     pthread_mutex_lock(&ack_flower_count_mut);
     ack_flower_count = value;
     pthread_mutex_unlock(&ack_flower_count_mut);
+}
+
+void addOccupiedFlowerCount(){
+    pthread_mutex_lock(&occupied_flower_mutex);
+    flower_occupied++;
+    pthread_mutex_unlock(&occupied_flower_mutex);
+}
+
+void subtractOccupiedFlowerCount(){
+    pthread_mutex_lock(&occupied_flower_mutex);
+    flower_occupied--;
+    pthread_mutex_unlock(&occupied_flower_mutex);
 }

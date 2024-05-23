@@ -98,6 +98,8 @@ void sendPacket(packet_t *pkt, int destination, int tag);
 void changeState(state_t);
 void changeAckReedCount(int);
 void changeAckFlowerCount(int);
+void addOccupiedFlowerCount();
+void subtractOccupiedFlowerCount();
 
 #endif
 
