@@ -53,7 +53,6 @@ void main_loop()
 				}
 				break;
 			case ON_REED:
-				debug("Jestem na trzcinie %d", reed_id);
 				println("Jestem na trzcinie %d", reed_id);
 
 				pkt->reed_id = reed_id;
@@ -63,13 +62,6 @@ void main_loop()
 						sendPacket(pkt, i, FLOWER_REQUEST);
 					}
 				}
-
-				// pthread_mutex_lock(&queue_reed_mutex);
-				// while (!isEmpty(reed_queue)){
-				// 	int dest = dequeue(reed_queue);
-				// 	sendPacket(0, dest, REED_ACK);
-				// }
-				// pthread_mutex_unlock(&queue_reed_mutex);
 				changeAckReedCount(0);
 
 				if(egg_count >= MAX_EGG){
@@ -90,7 +82,14 @@ void main_loop()
 				}
 				break;
 			case ON_FLOWER:
-				flower_occupied++;
+				println("Rozsyłam ENTER_FLOWER do wszystkich ilość zajętych kwiatków wynosi: %d ", flower_occupied);
+				for (int i = 0; i < size; i++){
+					if (i != rank){
+						sendPacket(pkt, i, ENTER_FLOWER);
+					}
+				}
+				addOccupiedFlowerCount();
+				// flower_occupied++;
 				println("Jestem na kwiatku, moja trzcina - %d , zajetych kwiatkow: %d", reed_id, flower_occupied);
 
 				sleep(1); 
@@ -104,16 +103,17 @@ void main_loop()
 						sendPacket(pkt, i, END_FLW);
 					}
 				}
-				flower_occupied--;
+				subtractOccupiedFlowerCount();
+				// flower_occupied--;
 
-				// pthread_mutex_lock(&queue_flower_mutex);
-				// while (!isEmpty(flower_queue)){
-				// 	int dest = dequeue(flower_queue);
-				// 	sendPacket(0, dest, FLOWER_ACK);
-				// }
-				// pthread_mutex_unlock(&queue_flower_mutex);
+				pthread_mutex_lock(&queue_flower_mutex);
+				while (!isEmpty(flower_queue)){
+					int dest = dequeue(flower_queue);
+					sendPacket(0, dest, FLOWER_ACK);
+				}
+				pthread_mutex_unlock(&queue_flower_mutex);
+				
 				changeAckFlowerCount(0);
-
 				//zmieniamy stan na zkładanie jajka
 				changeState(EGG);
 				break;
@@ -131,12 +131,20 @@ void main_loop()
 				changeState(ON_REED);
 				break;
 			case DEAD:
-				println("Zdechłem dzownie do wszystkich na pogrzeb");
+				println("Zdechłem dzownie do wszystkich na pogrzeb i zwalniam kolejkę");
 				for (int i = 0; i < size; i++){
 					if (i != rank){
 						sendPacket(pkt, i, END_OF_LIFE);
 					}
 				}
+
+				pthread_mutex_lock(&queue_reed_mutex);
+				while (!isEmpty(reed_queue)){
+					int dest = dequeue(reed_queue);
+					sendPacket(0, dest, REED_ACK);
+				}
+				pthread_mutex_unlock(&queue_reed_mutex);
+
 				changeState(AFTER_FUNERAL);
 				free(pkt);
 				break;
