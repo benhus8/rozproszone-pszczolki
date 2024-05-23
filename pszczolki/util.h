@@ -69,6 +69,8 @@ typedef enum {
     AFTER_FUNERAL
 } state_t;
 
+extern char *state_names[];
+
 extern int rank;
 extern int size;
 extern int egg_count;
@@ -77,6 +79,8 @@ extern int ack_reed_count;
 extern int ack_flower_count;
 extern int lamport_clock;
 extern int rec_priority;
+
+extern int bees;
 
 extern MPI_Datatype MPI_PACKET_T;
 extern state_t state;

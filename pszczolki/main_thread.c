@@ -3,19 +3,21 @@
 
 void main_loop()
 {
-    srandom(rank);
+    // srandom(rank);
 
     while (state != AFTER_FUNERAL) {
 		packet_t* pkt = malloc(sizeof(packet_t));
 		switch (state) {			
 			case REST: 
-			changeState(WAIT_REED);
+				changeState(WAIT_REED);
 				// wait
 				break;
 			case WAIT_REED:
+				srand(rank+1);
 				println("Czekam na trzcinę");
 				// losowo dobieramy trzcinę do której chcemy się dostać 
 				reed_id = rand() % NUM_REEDS;
+				println("Chcę na trzcinę: %d", reed_id);
 
 				//sprawdzamy czy trzcina na którą chcemy się dostaćnie jest przepłniona
 				if (reed_egg_counter[reed_id] >= MAX_REED_COCOON){
@@ -45,26 +47,29 @@ void main_loop()
 					changeState(REST);
 					break;
 				}
+				else if (bees==1){
+					debug("Jestem sam, wchodze bo moge na trzcine");
+					changeState(ON_REED);
+				}
 				break;
 			case ON_REED:
 				debug("Jestem na trzcinie %d", reed_id);
 				println("Jestem na trzcinie %d", reed_id);
-				rec_priority = lamport_clock*1000 + rank;
-				pkt->priority = rec_priority;
 
 				pkt->reed_id = reed_id;
+				sended_flower_req_ts = lamport_clock;
 				for (int i = 0; i < size; i++){
 					if (i != rank){
 						sendPacket(pkt, i, FLOWER_REQUEST);
 					}
 				}
 
-				pthread_mutex_lock(&queue_reed_mutex);
-				while (!isEmpty(reed_queue)){
-					int dest = dequeue(reed_queue);
-					sendPacket(0, dest, REED_ACK);
-				}
-				pthread_mutex_unlock(&queue_reed_mutex);
+				// pthread_mutex_lock(&queue_reed_mutex);
+				// while (!isEmpty(reed_queue)){
+				// 	int dest = dequeue(reed_queue);
+				// 	sendPacket(0, dest, REED_ACK);
+				// }
+				// pthread_mutex_unlock(&queue_reed_mutex);
 				changeAckReedCount(0);
 
 				if(egg_count >= MAX_EGG){
@@ -79,24 +84,34 @@ void main_loop()
 				free(pkt);
 				break;
 			case WAIT_FLOWER:
-				// wait
+				if(bees==1){
+					changeState(ON_FLOWER);
+					debug("Jestem sam, wchodze bo moge na kwiatka");
+				}
 				break;
 			case ON_FLOWER:
-				println("Jestem na kwiatku, moja trzcina - %d ", reed_id);
+				flower_occupied++;
+				println("Jestem na kwiatku, moja trzcina - %d , zajetych kwiatkow: %d", reed_id, flower_occupied);
 
 				sleep(1); 
 
 				println("Skończyłem byc na kwiatku, wracam na trzcine - %d !!!!!!!!", reed_id);
 
 				debug("Wychodzę z kwiatka");
-				debug("Zmieniam stan na wysyłanie");
 
-				pthread_mutex_lock(&queue_flower_mutex);
-				while (!isEmpty(flower_queue)){
-					int dest = dequeue(flower_queue);
-					sendPacket(0, dest, FLOWER_ACK);
+				for (int i = 0; i < size; i++){
+					if (i != rank){
+						sendPacket(pkt, i, END_FLW);
+					}
 				}
-				pthread_mutex_unlock(&queue_flower_mutex);
+				flower_occupied--;
+
+				// pthread_mutex_lock(&queue_flower_mutex);
+				// while (!isEmpty(flower_queue)){
+				// 	int dest = dequeue(flower_queue);
+				// 	sendPacket(0, dest, FLOWER_ACK);
+				// }
+				// pthread_mutex_unlock(&queue_flower_mutex);
 				changeAckFlowerCount(0);
 
 				//zmieniamy stan na zkładanie jajka

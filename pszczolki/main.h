@@ -22,6 +22,7 @@ extern int rec_priority; // priorytet ustalany przy dostaniu zlecenia
 extern int reed_egg_counter[NUM_REEDS]; //licznik ile złożono jajek na trzcinie
 
 extern int sended_reed_req_ts;
+extern int sended_flower_req_ts;
 
 
 extern pthread_t com_thread;

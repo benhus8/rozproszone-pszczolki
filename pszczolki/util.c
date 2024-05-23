@@ -9,6 +9,7 @@ int rec_priority = 0;
 MPI_Datatype MPI_PACKET_T;
 state_t state = REST;
 
+int bees = NUM_BEES;
 /* zamek wokół zmiennej współdzielonej między wątkami. 
  * Zwróćcie uwagę, że każdy proces ma osobą pamięć, ale w ramach jednego
  * procesu wątki współdzielą zmienne - więc dostęp do nich powinien
@@ -29,6 +30,19 @@ struct tagNames_t{
                 {"żądanie zakończenia sekcji kwiatka", END_FLW}, {"żądanie zakończenia sekcji gniazda", END_OF_LIFE}, {"potwierdzenie wejścia do sekcji trzciny", REED_ACK},
                 {"prośba o sekcję krytyczną trzciny", REED_REQUEST}, {"prośba o kwiatek", FLOWER_REQUEST}, {"potwierdzenie odn. kwiatka", FLOWER_ACK}
                 };
+
+char *state_names[] = {
+    "REST", 
+    "WAIT_REED", 
+    "ON_REED", 
+    "WAIT_FLOWER",
+    "ON_FLOWER",
+    "WaitForACKReed",
+    "WaitForACKFlower",
+    "EGG",
+    "DEAD",
+    "AFTER_FUNERAL"
+};
 
 const char *const tag2string( int tag )
 {
@@ -68,7 +82,7 @@ void sendPacket(packet_t *pkt, int destination, int tag)
     pthread_mutex_unlock( &clock_mut );
 
     MPI_Send( pkt, 1, MPI_PACKET_T, destination, tag, MPI_COMM_WORLD);
-    debug("Wysyłam %s do %d", tag2string(tag), destination);
+    debug("Wysyłam %s do %d, moj ts: %d", tag2string(tag), destination, pkt->ts);
     if (freepkt) free(pkt);
 }
 
