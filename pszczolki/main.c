@@ -14,7 +14,7 @@
  */
 struct Queue* reed_queue = NULL;
 struct Queue* flower_queue = NULL;
-int reed_id = 0;
+int reed_id = -1;
 pthread_t com_thread;
 int reed_egg_counter[NUM_REEDS] = {0};
 int sended_reed_req_ts = 0;

@@ -5,7 +5,7 @@ int ack_reed_count, ack_flower_count = 0;
 int egg_count = 0;
 int flower_occupied = 0;
 int lamport_clock = 0;
-int rec_priority = 0;
+int rec_priority = -1;
 MPI_Datatype MPI_PACKET_T;
 state_t state = REST;
 
