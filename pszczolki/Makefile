@@ -1,12 +1,12 @@
 SOURCES=$(wildcard *.c)
 HEADERS=$(SOURCES:.c=.h)
 
-NUM_BEES = 3
-NUM_REEDS = 2
+NUM_BEES = 5
+NUM_REEDS = 3
 NUM_FLOWERS = 2
 
-FLAGS=-DDEBUG -g
-# FLAGS=-g
+# FLAGS=-DDEBUG -g
+FLAGS=-g
 
 all: main tags
 
@@ -22,4 +22,4 @@ tags: ${SOURCES} ${HEADERS}
 	ctags -R .
 
 run: main Makefile tags
-	mpirun -np $(NUM_BEES) ./main
+	mpirun -np $(NUM_BEES) -oversubscribe ./main

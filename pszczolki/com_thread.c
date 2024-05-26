@@ -67,29 +67,31 @@ void *start_com_thread(void *ptr)
                 break;
             case FLOWER_REQUEST:
                 debug("Dostałem FLOWER_REQUEST, from: %d, moj state: %s, priority: %d rec_priority %d, source priority %d, sending %d", status.MPI_SOURCE, state_names[state], priority, rec_priority, packet.priority, sending);
-                if(state == ON_FLOWER && egg_count + 1 >= MAX_EGG){
-                    pthread_mutex_lock(&queue_flower_mutex);
-                    enqueue(flower_queue, status.MPI_SOURCE); 
-                    pthread_mutex_unlock(&queue_flower_mutex);
-                }
-                else if(state == EGG && egg_count == MAX_EGG){
-                    pthread_mutex_lock(&queue_flower_mutex);
-                    enqueue(flower_queue, status.MPI_SOURCE); 
-                    pthread_mutex_unlock(&queue_flower_mutex);
-                }
-                else if (state!=WAIT_FLOWER && state!=ON_REED && state!=ON_FLOWER){
-                    sendPacket(0, status.MPI_SOURCE, FLOWER_ACK);
-                }
-                else if( state==ON_REED && sending == 0){
-                    sendPacket(0, status.MPI_SOURCE, FLOWER_ACK);
-                }
-                else if ((state == WAIT_FLOWER || (state == ON_REED && sending == 1)) && !priority){
-                    sendPacket(0, status.MPI_SOURCE, FLOWER_ACK);
-                } else{
-                    pthread_mutex_lock(&queue_flower_mutex);
-                    enqueue(flower_queue, status.MPI_SOURCE); // status.MPI_SOURCE
-                    pthread_mutex_unlock(&queue_flower_mutex);
-                    debug("zapamietuje sobie ciebie");
+                if(state != AFTER_FUNERAL && state != DEAD) {
+                    if(state == ON_FLOWER && egg_count + 1 >= MAX_EGG){
+                        pthread_mutex_lock(&queue_flower_mutex);
+                        enqueue(flower_queue, status.MPI_SOURCE); 
+                        pthread_mutex_unlock(&queue_flower_mutex);
+                    }
+                    else if(state == EGG && egg_count == MAX_EGG){
+                        pthread_mutex_lock(&queue_flower_mutex);
+                        enqueue(flower_queue, status.MPI_SOURCE); 
+                        pthread_mutex_unlock(&queue_flower_mutex);
+                    }
+                    else if (state!=WAIT_FLOWER && state!=ON_REED && state!=ON_FLOWER){
+                        sendPacket(0, status.MPI_SOURCE, FLOWER_ACK);
+                    }
+                    else if( state==ON_REED && sending == 0){
+                        sendPacket(0, status.MPI_SOURCE, FLOWER_ACK);
+                    }
+                    else if ((state == WAIT_FLOWER || (state == ON_REED && sending == 1)) && !priority){
+                        sendPacket(0, status.MPI_SOURCE, FLOWER_ACK);
+                    } else{
+                        pthread_mutex_lock(&queue_flower_mutex);
+                        enqueue(flower_queue, status.MPI_SOURCE); // status.MPI_SOURCE
+                        pthread_mutex_unlock(&queue_flower_mutex);
+                        debug("zapamietuje sobie ciebie");
+                    }
                 }
                 break;
             case FLOWER_ACK:
@@ -108,7 +110,7 @@ void *start_com_thread(void *ptr)
                         changeState(ON_FLOWER);
                     }
                 }
-                debug("ack: %d source: %d", ack_flower_count, status.MPI_SOURCE);
+                debug("ack: %d source: %d bees %d", ack_flower_count, status.MPI_SOURCE, bees);
                 break;
             case ENTER_FLOWER:
                 addOccupiedFlowerCount();
