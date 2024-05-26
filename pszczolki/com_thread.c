@@ -66,11 +66,24 @@ void *start_com_thread(void *ptr)
                 debug("ack: %d", ack_reed_count);
                 break;
             case FLOWER_REQUEST:
-                debug("Dostałem FLOWER_REQUEST, from: %d, moj state: %s, priority: %d", status.MPI_SOURCE, state_names[state], priority);
-                if (state!=WAIT_FLOWER && state!=ON_FLOWER){
+                debug("Dostałem FLOWER_REQUEST, from: %d, moj state: %s, priority: %d rec_priority %d, source priority %d, sending %d", status.MPI_SOURCE, state_names[state], priority, rec_priority, packet.priority, sending);
+                if(state == ON_FLOWER && egg_count + 1 >= MAX_EGG){
+                    pthread_mutex_lock(&queue_flower_mutex);
+                    enqueue(flower_queue, status.MPI_SOURCE); 
+                    pthread_mutex_unlock(&queue_flower_mutex);
+                }
+                else if(state == EGG && egg_count == MAX_EGG){
+                    pthread_mutex_lock(&queue_flower_mutex);
+                    enqueue(flower_queue, status.MPI_SOURCE); 
+                    pthread_mutex_unlock(&queue_flower_mutex);
+                }
+                else if (state!=WAIT_FLOWER && state!=ON_REED && state!=ON_FLOWER){
                     sendPacket(0, status.MPI_SOURCE, FLOWER_ACK);
                 }
-                else if ((state == WAIT_FLOWER || state == ON_REED )&& !priority){
+                else if( state==ON_REED && sending == 0){
+                    sendPacket(0, status.MPI_SOURCE, FLOWER_ACK);
+                }
+                else if ((state == WAIT_FLOWER || (state == ON_REED && sending == 1)) && !priority){
                     sendPacket(0, status.MPI_SOURCE, FLOWER_ACK);
                 } else{
                     pthread_mutex_lock(&queue_flower_mutex);
@@ -80,10 +93,8 @@ void *start_com_thread(void *ptr)
                 }
                 break;
             case FLOWER_ACK:
-                if((state==WAIT_FLOWER || state==ON_REED) && flower_occupied < NUM_FLOWERS){
-                    if ( ack_flower_count >= bees - (NUM_FLOWERS - flower_occupied)){ 
-                        changeState(ON_FLOWER);
-                    } 
+                if((state == WAIT_FLOWER || state == ON_REED) && flower_occupied < NUM_FLOWERS && ack_flower_count >= bees - (NUM_FLOWERS)){
+                    changeState(ON_FLOWER);
                 }
 
                 if (packet.ts >= sended_flower_req_ts && (state == WAIT_FLOWER || state == ON_REED)) {
@@ -91,17 +102,17 @@ void *start_com_thread(void *ptr)
                     ack_flower_count++;
                     pthread_mutex_unlock(&ack_flower_count_mut);
 
-                    debug("Dostałem Flower_ACK od %d, mam już %d, potrzebuje %d", status.MPI_SOURCE, ack_flower_count, bees - (NUM_FLOWERS + flower_occupied));
+                    debug("Dostałem Flower_ACK od %d, mam już %d, potrzebuje %d", status.MPI_SOURCE, ack_flower_count, bees - (NUM_FLOWERS));
 
-                    if ( ack_flower_count >= bees - (NUM_FLOWERS - flower_occupied)){ 
+                    if ( ack_flower_count >= bees - (NUM_FLOWERS)){ 
                         changeState(ON_FLOWER);
-                    } 
+                    }
                 }
                 debug("ack: %d source: %d", ack_flower_count, status.MPI_SOURCE);
                 break;
             case ENTER_FLOWER:
                 addOccupiedFlowerCount();
-                debug("Otrzymałem ENTER_FLOWER od pszczółki nr %d, flowers: %d", status.MPI_SOURCE, flower_occupied);
+                debug("Otrzymałem ENTER_FLOWER od pszczółki nr %d, flowers: %d"2, status.MPI_SOURCE, flower_occupied);
                 break;
             case END_FLW:
                 subtractOccupiedFlowerCount();
@@ -115,6 +126,9 @@ void *start_com_thread(void *ptr)
                 break;
             case END_OF_LIFE:
                 bees--;
+                if ( (state == ON_REED || state == WAIT_FLOWER ) && ack_flower_count >= bees - (NUM_FLOWERS)){ 
+                    changeState(ON_FLOWER);
+                }
                 debug("Otrzymałem DEAD od pszczółki nr %d, ilosc pszczolek: %d, moj stan: %s", status.MPI_SOURCE, bees,state_names[state]);
                 break;
             default:

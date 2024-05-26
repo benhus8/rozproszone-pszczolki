@@ -24,6 +24,7 @@ extern int reed_egg_counter[NUM_REEDS]; //licznik ile złożono jajek na trzcini
 extern int sended_reed_req_ts;
 extern int sended_flower_req_ts;
 
+extern int sending;
 
 extern pthread_t com_thread;
 extern struct Queue* reed_queue; 

@@ -56,30 +56,33 @@ void main_loop()
 				}
 				break;
 			case ON_REED:
+				sending = 1;
 				rec_priority = lamport_clock;
 				println("Jestem na trzcinie %d", reed_id);
 
-				changeAckFlowerCount(0);
+				debug("WYSYŁAM FLOWER REQUEST DO WSZYSTKICH, moj priorytet: %d", rec_priority);
 
 				pkt->reed_id = reed_id;
 				pkt->priority = rec_priority;
 				sended_flower_req_ts = rec_priority;
+				changeAckFlowerCount(0);
 				for (int i = 0; i < size; i++){
 					if (i != rank){
 						sendPacket(pkt, i, FLOWER_REQUEST);
 					}
 				}
-
 				changeState(WAIT_FLOWER);
 			
 				break;
 			case WAIT_FLOWER:
+				sending = 0;
 				if(bees==1){
 					changeState(ON_FLOWER);
 					debug("Jestem sam, wchodze bo moge na kwiatka");
 				}
 				break;
 			case ON_FLOWER:
+				changeAckFlowerCount(0);
 				debug("Rozsyłam ENTER_FLOWER do wszystkich ilość zajętych kwiatków wynosi: %d ", flower_occupied);
 				rec_priority = lamport_clock;
 				pkt->priority = rec_priority;
@@ -108,20 +111,22 @@ void main_loop()
 				subtractOccupiedFlowerCount();
 
 				// printQueue(flower_queue);
-				pthread_mutex_lock(&queue_flower_mutex);
-				while (!isEmpty(flower_queue)){
-					int dest = dequeue(flower_queue);
-					sendPacket(0, dest, FLOWER_ACK);
+				if(egg_count + 1 < MAX_EGG){
+					pthread_mutex_lock(&queue_flower_mutex);
+					while (!isEmpty(flower_queue)){
+						int dest = dequeue(flower_queue);
+						sendPacket(0, dest, FLOWER_ACK);
+					}
+					pthread_mutex_unlock(&queue_flower_mutex);
 				}
-				pthread_mutex_unlock(&queue_flower_mutex);
-				
+
 				//zmieniamy stan na zkładanie jajka
 				changeState(EGG);
+				egg_count++;
 				break;
 			case EGG:
-				println("Składam jajko numer: %d", egg_count+1);
+				println("Składam jajko numer: %d", egg_count);
 				sleep(1);
-				egg_count++;
 				rec_priority = lamport_clock;
 				pkt->reed_id = reed_id;
 				pkt->priority = rec_priority;
@@ -136,6 +141,7 @@ void main_loop()
 					break;
 				}
 				else{
+					rec_priority = lamport_clock;
 					changeState(ON_REED);
 				}
 				break;
