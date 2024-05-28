@@ -59,7 +59,7 @@ void *start_com_thread(void *ptr)
                     pthread_mutex_unlock(&ack_reed_count_mut);
 
                     debug("Dostałem ACK od %d, mam już %d, potrzebuje %d", status.MPI_SOURCE, ack_reed_count, bees-1);
-                    if ( ack_reed_count >= NUM_BEES - 1){ 
+                    if ( ack_reed_count >= NUM_BEES - 1 && reed_egg_counter[reed_id] < MAX_REED_COCOON){ 
                         changeState(ON_REED);
                     } 
                 }
